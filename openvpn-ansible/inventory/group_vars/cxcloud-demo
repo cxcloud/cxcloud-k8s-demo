@@ -1,0 +1,25 @@
+---
+# This file contain OpenVPN specific variables
+
+# VPN Clients
+VpnClients:
+  - emma
+  - james
+  - roy
+
+# Server Name
+ServerName: cxcloud-demo
+
+# Redirect all traffic trough the VPN server
+RedrirectTraffic: false
+
+# Server network
+ServerNetwork: 10.8.0.0 255.255.255.0
+
+# Local networks
+LocalNetworks:
+  - 10.24.0.0 255.255.0.0
+  - search-cxcloud-some-hash.eu-west-1.es.amazonaws.com 255.255.255.255
+
+# Network Interface
+NetworkInterface: ens5

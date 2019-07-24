@@ -1,0 +1,9 @@
+---
+# This playbook deploys the OpenVPN role.
+
+- hosts: cxcloud-demo
+  become: True
+  roles:
+    - base
+    - openvpn-server-role
+    - openvpn-client-role

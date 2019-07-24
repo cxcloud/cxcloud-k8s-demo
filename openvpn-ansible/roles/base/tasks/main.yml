@@ -1,0 +1,29 @@
+---
+
+- name: Update OS
+  template:
+    src: apt-update.sh
+    dest: /usr/local/bin/apt-update.sh
+    mode: 0755
+
+- name: Clean OS packages
+  template:
+    src: apt-autoremove.sh
+    dest: /usr/local/bin/apt-autoremove.sh
+    mode: 0755
+
+- name: Cron job for updating OS
+  cron:
+    name: Update OS
+    hour: "5"
+    minute: "0"
+    weekday: "1"
+    job: /usr/local/bin/apt-update.sh
+
+- name: Cron job for cleaning up OS packages
+  cron:
+    name: Clean OS packages
+    hour: "7"
+    minute: "0"
+    weekday: "1"
+    job: /usr/local/bin/apt-autoremove.sh

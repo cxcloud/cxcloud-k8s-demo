@@ -1,0 +1,12 @@
+# Terrafrom
+.terraform
+terraform.tfstate
+terraform.tfstate.backup
+.terraform.tfstate.lock*
+
+# Don't commit any user keys
+*.tar.gz
+*.zip
+
+# Fluentd
+helm-fluentd-kinesis-firehose
