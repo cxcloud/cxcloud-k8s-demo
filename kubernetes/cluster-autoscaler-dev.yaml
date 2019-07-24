@@ -5,7 +5,7 @@ autoDiscovery:
 
 autoscalingGroups:
 # At least one element is required if not using autoDiscovery
-  - name: application.sandbox-jarl-dev.k8s.local
+  - name: application.cxcloud-demo-dev.k8s.local
     maxSize: 10
     minSize: 2
 

@@ -23,6 +23,11 @@ output "availability_zones" {
   value       = data.aws_availability_zones.available.names
 }
 
+output "vpn_ip" {
+  description = "OpenVPN IP address"
+  value       = module.openvpn.public_ip
+}
+
 output "ecr_addresses" {
   description = "ECR Repository URLs"
   value       = aws_ecr_repository.ecr.*.repository_url
