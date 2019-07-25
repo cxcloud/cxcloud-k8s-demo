@@ -1,99 +1,22 @@
 # CX Cloud Demo Infrastructure
 
-## Usage
+The demo setup will install the infra with Kubernetes running on AWS. When the setup is up and running it can be used for the [CX Cloud Demo app](https://github.com/cxcloud/cxcloud-monorepo-angular) or any other CX Cloud related project.
 
-Review your settings in `terraform.tfvars` then run:
+## Getting stated with CX Cloud Demo
 
-```sh
-cd terraform
-terraform init
-terraform workspace select dev
-terraform apply
-```
+### Requirements
 
-Where `dev` can be `staging` or `production` as well.
+- [Terraform](https://www.terraform.io/downloads.html) is used for provisioning all AWS required services for running the demo application on Kubernetes.
+- [Kops](https://github.com/kubernetes/kops#installing) is used for installing Kubernetes on AWS.
+- [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html) is requred in order to automatically install the OpenVPN software on a instance provisioned.
 
-After the `apply` command is successfully run, Terraform will display some results which include all the information you need for the next step. You can always get to them again by running `terraform output` or `terraform output -json`.
+### Installation steps
 
-## Install Kubernetes
+There are few steps that has to be done in order to install the infrastructure. Follow the instructions from the following steps:
 
-kops was selected for installing the Kubernetes cluster on top of AWS. The setup differs a bit between environments, hence, different instructions sections. Some parts of the kops installation process has to be done manually.
-
-### Dev / Staging
-
-- Create the cluster. Replace the received values from Terraform in the following command and run it (you need to have Kops installed):
-
-```sh
-kops create cluster \
-  --name=cxcloud-demo-dev.k8s.local \
-  --state=s3://cxcloud-demo-dev-kops-state \
-  --image=kope.io/k8s-1.11-debian-stretch-amd64-hvm-ebs-2018-08-17 \
-  --zones=eu-west-1a,eu-west-1b,eu-west-1c \
-  --master-size=t3.medium \
-  --node-size=t3.large \
-  --node-count=1 \
-  --ssh-public-key=~/.ssh/sandbox-jarl.pub \
-  --associate-public-ip=false \
-  --topology=private \
-  --dns=private \
-  --api-loadbalancer-type=internal \
-  --networking=weave \
-  --vpc=TERRAFORM_VPC_ID \
-  --network-cidr=TERRAFORM_VPC_CIDR_BLOCK \
-  --subnets=TERRAFORM_PRIVATE_SUBNET_0,TERRAFORM_PRIVATE_SUBNET_1,TERRAFORM_PRIVATE_SUBNET_2 \
-  --utility-subnets=TERRAFORM_PUBLIC_SUBNET_0,TERRAFORM_PUBLIC_SUBNET_1,TERRAFORM_PUBLIC_SUBNET_2 \
-  --yes
-```
-
-- Edit instance group, nodes
-
-```sh
-kops edit ig nodes --state=s3://cxcloud-demo-dev-kops-state
-```
-
-- Modify the subnets to only use `eu-west-1b` and the instance profile to the template. The spec section of the template should look something like this:
-
-```sh
-spec:
-.... other specs ...
-  subnets:
-  - eu-west-1b
-  iam:
-    profile: arn:aws:iam::12345678901:instance-profile/kops-nodes
-```
-
-- Create new instance group, application (it will open an editor were manual changes has to be done)
-
-```sh
-kops create ig application --state=s3://cxcloud-demo-dev-kops-state
-```
-
-- Change instance type to m4.large and modify maxSize to 10 and minSize to 2. Also add the exact same `iam` section to `spec` as for instance group nodes above. Make sure the the image in use is `kope.io/k8s-1.11-debian-stretch-amd64-hvm-ebs-2018-08-17`. We use spot instances for dev/staging so add `maxPrice: "0.112"`.
-
-The spec section of the template should look something like this:
-
-```sh
-spec:
-.... other specs ...
-  image: kope.io/k8s-1.11-debian-stretch-amd64-hvm-ebs-2018-08-17
-  maxPrice: "0.112"
-  iam:
-    profile: arn:aws:iam::12345678901:instance-profile/kops-nodes
-```
-
-- Update the cluster and perform a rolling update for the cluster
-
-```sh
-kops update cluster cxcloud-demo-dev.k8s.local --state=s3://cxcloud-demo-dev-kops-state --yes
-kops rolling-update cluster cxcloud-demo-dev.k8s.local --state=s3://cxcloud-demo-dev-kops-state --yes
-```
-
-- Run the installation script
-
-```sh
-cd kubernetes
-./install.sh -e dev -c cxcloud-demo-dev.k8s.local -i nginx -a TERRAFORM_ACM_ARN
-```
+1) [Provision the infra](terraform).
+2) [Install OpenVPN](openvpn-ansible) in order to access services in the private subnets on AWS.
+3) [Install Kubernetes](kubernetes).
 
 ### CI/CD
 
