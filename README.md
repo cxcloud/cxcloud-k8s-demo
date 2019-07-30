@@ -21,3 +21,12 @@ There are few steps that has to be done in order to install the infrastructure. 
 ### CI/CD
 
 To Install the CI/CD pipeline, please, refer to the [Jenkins repository](https://github.com/cxcloud/jenkins).
+
+#### SonarQube
+
+SonarQube can be installed with the following commands:
+
+```sh
+kubectl apply -f kubernetes/pvc-sonar.yaml
+helm install stable/sonarqube --name sonar --namespace ci -f kubernetes/sonar.yaml
+````

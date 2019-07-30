@@ -1,4 +1,4 @@
-name       = "cxcloud-demo"
+name = "cxcloud-demo"
 
 aws_region = "eu-west-1"
 
@@ -61,6 +61,14 @@ dns_loadblancer_records = {
     },
     {
       host  = "staging.demo.cxcloud.com."
+      alias = "some-random-hash.eu-west-1.elb.amazonaws.com"
+    },
+    {
+      host  = "int-jenkins.demo.cxcloud.com."
+      alias = "some-random-hash.eu-west-1.elb.amazonaws.com"
+    },
+    {
+      host  = "int-sonar.demo.cxcloud.com."
       alias = "some-random-hash.eu-west-1.elb.amazonaws.com"
     }
   ]
