@@ -59,7 +59,8 @@ if [ ${INGRESS_CONTROLLER} == "nginx" ]; then
     --set controller.service.targetPorts.https=http \
     --set controller.service.targetPorts.http=http \
     --set controller.nodeSelector."kops\.k8s\.io/instancegroup"="nodes" \
-    --set defaultBackend.nodeSelector."kops\.k8s\.io/instancegroup"="nodes"
+    --set defaultBackend.nodeSelector."kops\.k8s\.io/instancegroup"="nodes" \
+    --set controller.config.log-format-upstream='\{\"nginx\":\{"time": "\$time_iso8601"\, "remote_addr": "\$remote_addr"\, "x-forward-for": "\$http_x_forwarded_for"\, "request_id": "\$req_id"\, "remote_user": "\$remote_user"\, "bytes_sent": "\$bytes_sent"\, "request_time": "\$request_time"\, "status": "\$status"\, "vhost": "\$host"\, "request_proto": "\$server_protocol"\, "path": "\$uri"\, "request_query": "\$args"\, "request_length": "\$request_length"\, "duration": "\$request_time"\, "method": "\$request_method"\, "http_referrer": "\$http_referer"\, "http_user_agent": "\$http_user_agent"\}\}'
 
   # Public Nginx Ingress controller
   helm install stable/nginx-ingress --name nginx-ingress-public --namespace kube-system \
@@ -72,7 +73,8 @@ if [ ${INGRESS_CONTROLLER} == "nginx" ]; then
     --set controller.service.targetPorts.https=http \
     --set controller.service.targetPorts.http=http \
     --set controller.nodeSelector."kops\.k8s\.io/instancegroup"="nodes" \
-    --set defaultBackend.nodeSelector."kops\.k8s\.io/instancegroup"="nodes"
+    --set defaultBackend.nodeSelector."kops\.k8s\.io/instancegroup"="nodes" \
+    --set controller.config.log-format-upstream='\{\"nginx\":\{"time": "\$time_iso8601"\, "remote_addr": "\$remote_addr"\, "x-forward-for": "\$http_x_forwarded_for"\, "request_id": "\$req_id"\, "remote_user": "\$remote_user"\, "bytes_sent": "\$bytes_sent"\, "request_time": "\$request_time"\, "status": "\$status"\, "vhost": "\$host"\, "request_proto": "\$server_protocol"\, "path": "\$uri"\, "request_query": "\$args"\, "request_length": "\$request_length"\, "duration": "\$request_time"\, "method": "\$request_method"\, "http_referrer": "\$http_referer"\, "http_user_agent": "\$http_user_agent"\}\}'
 fi
 if [ ${INGRESS_CONTROLLER} == "alb" ]; then
   helm install incubator/aws-alb-ingress-controller \
