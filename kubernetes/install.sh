@@ -37,19 +37,19 @@ if ([ ${INGRESS_CONTROLLER} != "nginx" ] && [ ${INGRESS_CONTROLLER} != "alb" ]) 
 fi
 
 # RBAC
-kubectl apply -f rbac.yaml
-
+#kubectl apply -f rbac.yaml
 # Tilder
-helm init --service-account tiller
-sleep 20
+### helm init is obsoleted by helm v3
+#helm init --service-account tiller
+#sleep 20
 
 # Metrics Service
-helm install --name metrics-server --namespace kube-system -f metrics-service.yaml stable/metrics-server
+helm install metrics-server stable/metrics-server  --namespace kube-system -f metrics-service.yaml 
 
 # Install ingress controller
 if [ ${INGRESS_CONTROLLER} == "nginx" ]; then
   #Internal Nginx controller
-  helm install stable/nginx-ingress --name nginx-ingress --namespace kube-system \
+  helm install nginx-ingress stable/nginx-ingress  --namespace kube-system \
     --set rbac.create=true \
     --set controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-internal"="yes" \
     --set controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-ssl-cert"="${ACM_ARN}" \
@@ -63,7 +63,7 @@ if [ ${INGRESS_CONTROLLER} == "nginx" ]; then
     --set controller.config.log-format-upstream='\{\"nginx\":\{"time": "\$time_iso8601"\, "remote_addr": "\$remote_addr"\, "x-forward-for": "\$http_x_forwarded_for"\, "request_id": "\$req_id"\, "remote_user": "\$remote_user"\, "bytes_sent": "\$bytes_sent"\, "request_time": "\$request_time"\, "status": "\$status"\, "vhost": "\$host"\, "request_proto": "\$server_protocol"\, "path": "\$uri"\, "request_query": "\$args"\, "request_length": "\$request_length"\, "duration": "\$request_time"\, "method": "\$request_method"\, "http_referrer": "\$http_referer"\, "http_user_agent": "\$http_user_agent"\}\}'
 
   # Public Nginx Ingress controller
-  helm install stable/nginx-ingress --name nginx-ingress-public --namespace kube-system \
+  helm install nginx-ingress-public stable/nginx-ingress  --namespace kube-system \
     --set rbac.create=true \
     --set controller.ingressClass=nginx-public \
     --set controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-ssl-cert"="${ACM_ARN}" \
@@ -77,8 +77,7 @@ if [ ${INGRESS_CONTROLLER} == "nginx" ]; then
     --set controller.config.log-format-upstream='\{\"nginx\":\{"time": "\$time_iso8601"\, "remote_addr": "\$remote_addr"\, "x-forward-for": "\$http_x_forwarded_for"\, "request_id": "\$req_id"\, "remote_user": "\$remote_user"\, "bytes_sent": "\$bytes_sent"\, "request_time": "\$request_time"\, "status": "\$status"\, "vhost": "\$host"\, "request_proto": "\$server_protocol"\, "path": "\$uri"\, "request_query": "\$args"\, "request_length": "\$request_length"\, "duration": "\$request_time"\, "method": "\$request_method"\, "http_referrer": "\$http_referer"\, "http_user_agent": "\$http_user_agent"\}\}'
 fi
 if [ ${INGRESS_CONTROLLER} == "alb" ]; then
-  helm install incubator/aws-alb-ingress-controller \
-    --name=alb-ingress-controller \
+  helm install alb-ingress-controller incubator/aws-alb-ingress-controller  \
     --namespace=kube-system \
     -f alb-ingress-controller.yaml \
     --set clusterName=s${CLUSTER_NAME} \
@@ -86,8 +85,8 @@ if [ ${INGRESS_CONTROLLER} == "alb" ]; then
 fi
 
 # Cluster Autoscaling
-helm install stable/cluster-autoscaler --name cluster-autoscaler --namespace kube-system -f cluster-autoscaler-${KUBE_ENV}.yaml
+helm install cluster-autoscaler stable/cluster-autoscaler  --namespace kube-system -f cluster-autoscaler-${KUBE_ENV}.yaml
 
 # Fluentd
 git clone https://github.com/cxcloud/helm-fluentd-kinesis-firehose.git
-helm install ./helm-fluentd-kinesis-firehose --name fluentd --namespace kube-system -f fluentd.yaml
+helm install fluentd ./helm-fluentd-kinesis-firehose  --namespace kube-system -f fluentd.yaml
